@@ -9,6 +9,7 @@ In that case, given a binary tree, determine if it's balanced.
 #include <sstream> // istringstream
 #include <string> // getline, stoi, string
 #include <vector> // vector
+#include <cstdlib>
 
 template <typename T>
 struct Node {
@@ -58,13 +59,36 @@ struct balanceResult _is_balanced(Node<int>* tree) {
     return res;
 }
 
+ int _is_balanced2(Node<int>* tree) {
+     
+     // WRITE YOUR BRILLIANT CODE HERE
+     int leftH, rightH;
+    
+     if (tree == nullptr) {
+         return 0;
+     }
+    
+     leftH = _is_balanced2(tree->left);
+     rightH = _is_balanced2(tree->right);
+     
+     if ( leftH == -1 || rightH == -1 ) {
+         return -1;
+     }
+    
+     if (std::abs(leftH - rightH) > 1) {
+         return -1;
+     }
+    
+    return std::max(leftH, rightH) + 1;
+}
+
 bool is_balanced(Node<int>* tree) {
     
-    struct balanceResult r;
-    
+    /*struct balanceResult r;
     r = _is_balanced(tree);
+    return r.r;*/
     
-    return r.r;
+    return (_is_balanced2(tree) != -1);
 }
 
 template<typename T, typename Iter, typename F>

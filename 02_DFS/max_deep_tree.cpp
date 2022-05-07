@@ -1,10 +1,13 @@
+/*
+Max depth of a binary tree is the longest root-to-leaf path. Given a binary tree, find its max depth.
+*/
 #include <algorithm> // copy
 #include <iostream> // cin, cout
 #include <iterator> // back_inserter, istream_iterator
 #include <sstream> // istringstream
 #include <string> // getline, stoi, string
 #include <vector> // vector
-#include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -23,16 +26,17 @@ struct Node {
     }
 };
 
-int _tree_max_depth(Node<int>* root, int currentMax) {
+
+int _tree_max_depth_1(Node<int>* root, int currentMax) {
 
     int left = 0, right = 0;
     
     if (root->left != nullptr) {
-        left = _tree_max_depth(root->left, currentMax + 1);
+        left = _tree_max_depth_1(root->left, currentMax + 1);
     }
     
     if (root->right != nullptr) {
-        right = _tree_max_depth(root->right, currentMax + 1);
+        right = _tree_max_depth_1(root->right, currentMax + 1);
     }
     
     currentMax = (currentMax > left) ? currentMax : left;
@@ -42,14 +46,33 @@ int _tree_max_depth(Node<int>* root, int currentMax) {
 
 }
 
+int _tree_max_depth2(Node<int>* root, int currentMax) {
+   
+    if (root == nullptr) { 
+        return currentMax;
+    }
+    
+    int max = std::max(_tree_max_depth2(root->left, currentMax + 1), _tree_max_depth2(root->right, currentMax + 1));
+    
+    return max;
+}
+
+int _tree_max_depth(Node<int>* root) {
+   
+    if (root == nullptr) { 
+        return 0;
+    }
+    
+    int max = std::max(_tree_max_depth(root->left), _tree_max_depth(root->right)) + 1;
+    
+    return max;
+}
 
 int _tree_max_depth_it(Node<int>* root) {
-
-    int left = 0, right = 0;
-    queue<Node<int>*> treeq;
-    queue<int> maxq;
-    Node<int> * currNode;
-    int max, currMax;
+    
+    stack<Node<int>*> treeq;
+    stack<int> maxq; 
+    int max = 0;
     
     if (root == nullptr) {
         return 0;
@@ -60,37 +83,37 @@ int _tree_max_depth_it(Node<int>* root) {
     
     while (!treeq.empty()) {
     
-        currNode = treeq.front();
-        currMax = maxq.front();
+        Node<int> * currNode = treeq.top();
+        int currMax = maxq.top();
         
         treeq.pop();
         maxq.pop();
         
-        //set new current max
-        max = currMax > max ? currMax : max;
-        
-        if (currNode->right != nullptr) {
+        if (currNode != nullptr) {
+            //set new current max
+            max = currMax > max ? currMax : max;
+       
             treeq.push(currNode->right);
             maxq.push(currMax + 1);
-        }
-        
-        if (currNode->left != nullptr) {
+            
             treeq.push(currNode->left);
             maxq.push(currMax + 1);   
         }      
     }
-    
-    
+       
     return max;
-
 }
 
 int tree_max_depth(Node<int>* root) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    //return (root != nullptr)?_tree_max_depth(root, 1) : 0;
+    //return (root != nullptr)?_tree_max_depth_1(root, 1) : 0;
     
-    return _tree_max_depth_it(root);
+    //return _tree_max_depth2(root, 0);
+    
+    //return _tree_max_depth_it(root);
+    
+    return _tree_max_depth(root);
 }
 
 template<typename T, typename Iter, typename F>
