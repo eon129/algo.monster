@@ -20,14 +20,15 @@ std::vector<std::vector<int>> k_closest_points(std::vector<std::vector<int>> poi
     // WRITE YOUR BRILLIANT CODE HERE
     
     std::priority_queue<std::pair<float, int>> pq;
-    std::vector<std::vector<int>> result;
+    std::vector<std::vector<int>> result;  
     
-    //Iterate over points and calculate the dinstance from 0 using sqrrot(a^2 + b^2) and push it to the heap
+    //Iterate over points and calculate the dinstance from 0 using sqrt(a^2 + b^2) and push it to the heap
     for (int i=0; i< points.size(); i++) {
-        float distance = sqrt((points[i][0]^2) + (points[i][0]^2));
-        pq.push(std::make_pair(distance, i));
+        float distance = sqrt(pow(points[i][0], 2) + pow(points[i][1], 2));
+        //Convert distance to negative so pq works as a min heap
+        pq.push(std::make_pair(distance*-1, i));
     }
-    
+       
     //For loop k times and pop it from the queue
     for(int i=0; i<k; i++) {
         auto elem = pq.top();
