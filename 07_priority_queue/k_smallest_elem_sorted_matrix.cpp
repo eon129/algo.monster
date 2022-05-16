@@ -24,35 +24,40 @@ You may assume k is always valid, 1 ≤ k ≤ n^2. You may also assume that 1 <=
 #include <string> // getline, string
 #include <vector> // vector
 #include <queue>
-int kth_smallest(std::vector<std::vector<int>> matrix, int k) {
+
+int find_kth_largest_old(std::vector<int> nums, int k) {
     // WRITE YOUR BRILLIANT CODE HERE
     std::priority_queue<int> pq;
-    int n, pyramid, side, offset;
     
-    n = matrix.size();
+    //Put the numbers in a heap
+    //It would be better if we can "make a heap" from the array since complexity is O(n)
+    for(int i=0; i<nums.size(); i++) {
     
-    for(int c=0, side = 1, pyramid=1, offset = 0; c < ((n*2) - 1); c++) {
-    
-        int i, j;
-        for (i=0, j=pyramid-1; i < pyramid; i++, j--) {
-            
-            //Push elements with opposite sign to create a min heap
-            pq.push(matrix[offset+(i*side)][offset+(j*side)] * -1);
-        }
-        
-        if (c+1 >= n) {
-            side = -1;
-            offset = n-1;
-        }
-        pyramid += side; 
+        pq.push(nums[i]);
     }
     
-    //Remove elements from the queue until k
-    for(int i=1; i<k; i++) {    
+    //pop k-1 numbers from pq
+    for(int i=1; i<k; i++) {
         pq.pop();
     }
     
-    return (pq.top() * -1);
+    return pq.top();
+}
+
+
+int find_kth_largest(std::vector<int> nums, int k) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    
+    //make a heap from vector
+    std::make_heap(nums.begin(), nums.end());
+    
+    //pop k-1 numbers from heapifyed vector
+    for(int i=1; i<k; i++) {
+        pop_heap(nums.begin(), nums.end());
+        nums.pop_back();
+    }
+    
+    return nums.front();
 }
 
 template<typename T>
@@ -70,16 +75,10 @@ void ignore_line() {
 }
 
 int main() {
-    int matrix_length;
-    std::cin >> matrix_length;
-    ignore_line();
-    std::vector<std::vector<int>> matrix;
-    for (int i = 0; i < matrix_length; i++) {
-        matrix.emplace_back(get_words<int>());
-    }
+    std::vector<int> nums = get_words<int>();
     int k;
     std::cin >> k;
     ignore_line();
-    int res = kth_smallest(matrix, k);
+    int res = find_kth_largest(nums, k);
     std::cout << res << '\n';
 }

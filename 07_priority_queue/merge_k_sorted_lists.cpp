@@ -14,7 +14,11 @@ Output: [1, 2, 3, 4, 5, 6, 7, 10]
 #include <vector> // vector
 #include <queue>
 
-std::vector<int> merge_k_sorted_lists(std::vector<std::vector<int>> lists) {
+/* For this first approach the complexity is not optimal. This two step solution first put all numbers
+into the heap, this takes n insertions on the heap, with every insertion taking log(i) time.
+Then going through all heap poping elements, and rearanging heap
+*/
+std::vector<int> merge_k_sorted_lists_old(std::vector<std::vector<int>> lists) {
     // WRITE YOUR BRILLIANT CODE HERE
     
     std::priority_queue<int> pq;
@@ -50,6 +54,45 @@ std::vector<int> merge_k_sorted_lists(std::vector<std::vector<int>> lists) {
         result.push_back(e * -1);
     }
     
+    return result;
+}
+
+/* This algorithm works better in the case you get a small number of lists with 
+a big number of elements, on every iteration you will spend only log(num_lists) time to get
+the next number.
+*/
+std::vector<int> merge_k_sorted_lists(std::vector<std::vector<int>> lists) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    
+    std::priority_queue<std::pair<int, std::pair<int, int>>> pq;
+    std::vector<int> result;
+    int c = 0;
+    int list_finished;
+    
+    //Put first element of every list in the heap
+    for (int i=0; i<lists.size(); i++) {
+    
+        pq.push(std::make_pair( -lists[i][0], std::make_pair(i, 0)));
+    }
+    
+    //Push to heap every element on list in order
+    //until we finish
+    while(!pq.empty()) {
+    
+        auto curr = pq.top();
+        pq.pop();
+        
+        result.push_back(-curr.first);
+        
+        //Go to the next value in the list if posible
+        if (curr.second.second + 1 < lists[curr.second.first].size()) {
+                 
+            auto listIndex = curr.second.first;
+            auto valIndex = curr.second.second + 1;
+            pq.push(std::make_pair( -lists[listIndex][valIndex], std::make_pair(listIndex, valIndex)));
+        }
+    }
+        
     return result;
 }
 
