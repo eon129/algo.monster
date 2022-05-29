@@ -26,7 +26,9 @@ Output: 30
 
 int maximum_score(std::vector<int> arr1, std::vector<int> arr2) {
     // WRITE YOUR BRILLIANT CODE HERE
-    int result, ptr1, ptr2, len1, len2, seg1, seg2;
+    int ptr1, ptr2, len1, len2;
+    int MODULO_AMT = 1000000007;
+    long long result, seg1, seg2;
     
     result = 0;
     ptr1 = 0;
@@ -38,11 +40,11 @@ int maximum_score(std::vector<int> arr1, std::vector<int> arr2) {
     
     while (ptr1 < len1 || ptr2 < len2) {
         
-        if ( (ptr1<len1 && ptr2<len2) && arr1[ptr1] == arr2[ptr2]) {
+        if ((ptr1<len1 && ptr2<len2) && arr1[ptr1] == arr2[ptr2]) {
             
             //Sum to result the max segment and current position
             result += std::max(seg1, seg2) + arr1[ptr1];
-            
+            result %= MODULO_AMT;
             seg1=0;
             seg2=0;
             ptr1++;
@@ -53,20 +55,21 @@ int maximum_score(std::vector<int> arr1, std::vector<int> arr2) {
         
         //Falta checar cuando estamos al final de la lista
         //Y el otro ya termino
-        if (arr[ptr1] < arr[ptr2]) {
+        if (ptr2 == len2 || (ptr1 < len1 && arr1[ptr1] < arr2[ptr2])) {
             
-            seg1+= arr[ptr1];
+            seg1+= arr1[ptr1];
             ptr1++;
+            continue;
         } else {
             
-            seg2+= arr[ptr2];
+            seg2+= arr2[ptr2];
             ptr2++;
         }
     }
     
     result += std::max(seg1, seg2);
     
-    return result;
+    return result % MODULO_AMT;
 }
 
 template<typename T>
