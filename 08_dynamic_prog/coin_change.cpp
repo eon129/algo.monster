@@ -25,11 +25,9 @@ Output: -1
 
 const int INT_MAX = 2147483647;
 
-int _coin_change(std::vector<int> &coins, int amount, int coin_num, int &global_min, std::string path) {
+int _coin_change(std::vector<int> &coins, int amount, int coin_num, int &global_min) {
     
     int local_min;
-    
-    std::cout  << path << ", ";
     
     //Avoid to continue searching for more combinations if there is already a beter solution
     if((coin_num + 1) >= global_min) {
@@ -44,21 +42,18 @@ int _coin_change(std::vector<int> &coins, int amount, int coin_num, int &global_
         
         //A solution has been found
         if (new_amount == 0) {
-            std::cout << "#C: " << coin_num+1 << "# ";
+            
             local_min = coin_num + 1;
             
+            global_min = (local_min < global_min) ? local_min : global_min;
         } else if (new_amount > 0 ) {
-            std::string newP = path;
-            newP += std::to_string(coins[i]);
-            newP +="-";
-            local_min = _coin_change(coins, new_amount, ++coin_num, global_min, newP);
-        }
-        
-        global_min = (local_min < global_min) ? local_min : global_min;
+            
+            local_min = _coin_change(coins, new_amount, coin_num+1, global_min);
+            
+            global_min = (local_min < global_min) ? local_min : global_min;
+        }     
     }
-    
-    //global_min = (local_min < global_min) ? local_min : global_min;
-       
+           
     return global_min;
 }
 
@@ -66,7 +61,7 @@ int coin_change(std::vector<int> coins, int amount) {
     // WRITE YOUR BRILLIANT CODE HERE
     int global_min = INT_MAX;
     
-    int result = _coin_change(coins, amount, 0, global_min, "");
+    int result = _coin_change(coins, amount, 0, global_min);
     
     return (result == INT_MAX) ? -1 : result;
 }
