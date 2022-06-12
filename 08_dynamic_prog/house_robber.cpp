@@ -34,11 +34,28 @@ int _rob(std::vector<int> &nums, int pos, std::unordered_map<int, int> &mem) {
     return res;
 }
 
-int rob(std::vector<int> nums) {
+int rob_recursive(std::vector<int> nums) {
     // WRITE YOUR BRILLIANT CODE HERE
     std::unordered_map<int, int> mem;
         
     return _rob(nums, 0, mem);
+}
+
+int rob(std::vector<int> nums) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    int rob_amount[nums.size()];
+    
+    //Set first value since it won't be compared to other
+    rob_amount[0] = nums[0];
+    //Start with 1
+    for (int i=1; i<nums.size(); i++) {
+        
+        int house_2 = (i-2)>=0 ? rob_amount[i-2] : 0;
+        
+        rob_amount[i] = std::max(rob_amount[i-1], nums[i] + house_2);
+    }
+    
+    return rob_amount[nums.size()-1];
 }
 
 template<typename T>
