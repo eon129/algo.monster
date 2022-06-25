@@ -63,41 +63,65 @@ int plumber(std::vector<std::vector<int>> grid) {
     int n_row = grid.size();
     int res_grid[n_row][n_col];
     int max_global = 0;
+    int r, c;
     
-    for(int r=0; r<n_row; r++) {
+    for(r=0; r<n_row; r++) {
         
         //First pass
         int sum = 0;
-        for(int c=0; c<n_col; c++) {
+        int prev = 0;
+        for(c=0; c<n_col; c++) {
             
+            //Row 0  doesn't have previous value
+            if (r == 0) {
+                prev = 0;
+            } else if (res_grid[r-1][c] != -1){
+                prev = (res_grid[r-1][c]>prev) ? res_grid[r-1][c] : prev;
+            }
+            
+            //A barrier has been found
             if(grid[r][c] == -1) {
-                res_grid[r][c] = 0;
+                //Add prev value to previous column if it exist
+                if (c > 0 && res_grid[r][c-1] !=-1) {
+                    res_grid[r][c-1]+= prev;
+                }
+                //Save barrier in result and reset flags
+                res_grid[r][c] = -1;
                 sum = 0;
+                prev = 0;
             } else {
-                
+                //Sum until a barrier is found
                 sum += grid[r][c];
                 res_grid[r][c] = sum;
             }
         }
         
-        //Second pass
-        int max = 0;
+        //In case there is no barrier at the end of the row
+        if (res_grid[r][c-1] !=-1) {
+            res_grid[r][c-1]+= prev;
+        }
+        
+        //Second pass, now backwards
+        int max = -1;
         for(int c=n_col-1; c>=0; c--) {
             
-            max = res_grid[r][c] > max ? res_grid[r][c] : max;
-            int prev;
-            if (r == 0){
-                prev = 0;
-            } else {
-                prev = res_grid[r-1][c];
-            }
+            //max = res_grid[r][c] > max ? res_grid[r][c] : max;
             
-            if(grid[r][c] == -1) {
-                max = 0;
-            } else {       
-                res_grid[r][c] = max + prev;
+            //Barrier is found, reset max flag
+            if(res_grid[r][c] == -1) {
+                max = -1;
+            } else {
+                //Only save first value (left to rigt) which is the max for each section
+                if(max == -1) {
+                    max = res_grid[r][c];
+                }
+                //Update all values in section with max
+                res_grid[r][c] = max;
                 
-                max_global =  res_grid[r][c] > max_global ? res_grid[r][c] : max_global;
+                //Save max global only at the last row
+                if ( r == n_row-1) {
+                    max_global =  res_grid[r][c] > max_global ? res_grid[r][c] : max_global;
+                }
             }
         }
     }
