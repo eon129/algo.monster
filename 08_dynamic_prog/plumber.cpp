@@ -57,12 +57,20 @@ Constraints
 #include <string> // getline, string
 #include <vector> // vector
 
+void fill_section(int * grid, int end, int val) {
+
+    for(int c=0; c<end; c++) {
+        
+        grid[c] = val;
+    }
+}
+
 int plumber(std::vector<std::vector<int>> grid) {
     // WRITE YOUR BRILLIANT CODE HERE
     int n_col = grid[0].size();
     int n_row = grid.size();
     int res_grid[n_row][n_col];
-    int max_global = 0;
+    int max_global = -2;
     int r, c;
     
     for(r=0; r<n_row; r++) {
@@ -70,59 +78,53 @@ int plumber(std::vector<std::vector<int>> grid) {
         //First pass
         int sum = 0;
         int prev = 0;
+        int start_c = 0;
+        bool has_path = false;
         for(c=0; c<n_col; c++) {
             
+            //First get max prev row section
             //Row 0  doesn't have previous value
             if (r == 0) {
                 prev = 0;
+                has_path = true;
             } else if (res_grid[r-1][c] != -1){
+                //Save max prev row section
                 prev = (res_grid[r-1][c]>prev) ? res_grid[r-1][c] : prev;
+                has_path = true;
             }
             
             //A barrier has been found
             if(grid[r][c] == -1) {
-                //Add prev value to previous column if it exist
-                if (c > 0 && res_grid[r][c-1] !=-1) {
-                    res_grid[r][c-1]+= prev;
+                //Fill section with max value and max prev value or block
+                int val = (has_path) ? sum + prev : -1;
+                fill_section(&res_grid[r][start_c], c, val);
+                
+                //Save max global only at the last row
+                if ( r == n_row-1) {
+                    //std::cout << "val: " << val << " r";
+                    max_global =  val > max_global ? val : max_global;
                 }
+                
                 //Save barrier in result and reset flags
                 res_grid[r][c] = -1;
                 sum = 0;
                 prev = 0;
+                start_c = c+1;
+                has_path = false;
             } else {
                 //Sum until a barrier is found
                 sum += grid[r][c];
-                res_grid[r][c] = sum;
             }
         }
         
-        //In case there is no barrier at the end of the row
-        if (res_grid[r][c-1] !=-1) {
-            res_grid[r][c-1]+= prev;
-        }
+        //In case there is no barrier at the end of the row 
+        int val = (has_path) ? sum + prev : -1;
+        fill_section(&res_grid[r][start_c], c, val);
         
-        //Second pass, now backwards
-        int max = -1;
-        for(int c=n_col-1; c>=0; c--) {
-            
-            //max = res_grid[r][c] > max ? res_grid[r][c] : max;
-            
-            //Barrier is found, reset max flag
-            if(res_grid[r][c] == -1) {
-                max = -1;
-            } else {
-                //Only save first value (left to rigt) which is the max for each section
-                if(max == -1) {
-                    max = res_grid[r][c];
-                }
-                //Update all values in section with max
-                res_grid[r][c] = max;
-                
-                //Save max global only at the last row
-                if ( r == n_row-1) {
-                    max_global =  res_grid[r][c] > max_global ? res_grid[r][c] : max_global;
-                }
-            }
+        //Save max global only at the last row
+        if ( r == n_row-1) {
+            //std::cout << "val2: " << val << " ";
+            max_global =  val > max_global ? val : max_global;
         }
     }
     
@@ -163,3 +165,4 @@ int main() {
     int res = plumber(grid);
     std::cout << res << '\n';
 }
+
