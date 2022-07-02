@@ -57,7 +57,7 @@ int _longest_sub_len(std::vector<int> &nums, int pos, std::unordered_map<int, in
     return max+1;
 }
 
-int longest_sub_len(std::vector<int> nums) {
+int longest_sub_len_old(std::vector<int> nums) {
     // WRITE YOUR BRILLIANT CODE HERE
     std::unordered_map<int, int> dic;
     
@@ -67,6 +67,32 @@ int longest_sub_len(std::vector<int> nums) {
     
     dic[0] = 1;
     return _longest_sub_len(nums, nums.size()-1, dic);
+}
+
+int longest_sub_len(std::vector<int> nums) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    int dp[nums.size()];
+    int max = 0;
+    
+    //initializes dp with ones
+    for (int i=0; i<nums.size(); i++) {
+        dp[i] = 1;
+    }
+    
+    for(int i=1; i<nums.size(); i++) {
+    
+        for(int j=0; j<i; j++) {
+            
+            if (nums[i] > nums[j]) {
+                dp[i] = std::max(dp[i], dp[j]+1);
+            }
+            
+        }
+        //Stores max value over all the sequences     
+        max = (dp[i]>max) ? dp[i] : max;
+    }
+    
+    return max;
 }
 
 template<typename T>
@@ -84,3 +110,4 @@ int main() {
     int res = longest_sub_len(nums);
     std::cout << res << '\n';
 }
+
