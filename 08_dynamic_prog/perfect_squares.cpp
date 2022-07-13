@@ -20,7 +20,7 @@ Explanation:
 #include <unordered_map>
 #include <math.h>
 
-int _perfect_squares(int n, std::unordered_map<int, int> &map) {
+int perfect_squares_top_down(int n, std::unordered_map<int, int> &map) {
     // WRITE YOUR BRILLIANT CODE HERE
     
     if (map.find(n) != map.end()) {
@@ -28,19 +28,20 @@ int _perfect_squares(int n, std::unordered_map<int, int> &map) {
     }
     
     double n_sqrt = sqrt(n);
+    
     if (ceil(n_sqrt) == floor(n_sqrt)) {
         
         map[n] = 1;
         return 1;
     }
     
+    
     int curr_floor = floor(n_sqrt);
     int min = 2147483647;
     
     while (curr_floor > 0) {
-    
-        int local_min = _perfect_squares(n-(curr_floor * curr_floor), map);
         
+        int local_min = perfect_squares_top_down(n-(curr_floor * curr_floor), map);
         min = (local_min < min) ? local_min : min;
         
         curr_floor--;
@@ -51,15 +52,48 @@ int _perfect_squares(int n, std::unordered_map<int, int> &map) {
     return map[n];
 }
 
+int perfect_squares_bottom_up(int n) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    
+    int dp[n+1];
+    
+    //Zero is not used
+    dp[0] = 0;
+    //Prefill 1 value
+    dp[1] = 1;
+    
+    for (int i=2; i<=n; i++) {
+        
+        //Check if i is not perfect sqr root
+        double s = sqrt(i);
+        if (ceil(s) != floor(s)) {
+        
+            int curr_square = floor(s);
+            int min = 2147483647;
+            
+            //Get the min value using previous results
+            while (curr_square > 0) {
+                
+                min = (dp[i-(curr_square*curr_square)] < min) ? dp[i-(curr_square*curr_square)] : min;
+                curr_square--;
+            }
+            
+            dp[i] = min + 1;
+        } else {
+            //Save value 1 since is perfect sqr root
+            dp[i] = 1;
+        }
+    }
+    
+    return dp[n];
+}
+
 int perfect_squares(int n) {
     // WRITE YOUR BRILLIANT CODE HERE
-    std::unordered_map<int, int> map;
+    //std::unordered_map<int, int> map;
+    //return perfect_squares_top_down(n, map);
     
-    //double d = sqrt(12);
-    
-    //std::cout << floor(d);
-    
-    return _perfect_squares(n, map);
+    return perfect_squares_bottom_up(n);
 }
 
 void ignore_line() {
