@@ -51,9 +51,6 @@ Constraints
 #include <vector> // vector
 #include <numeric>
 
-//si coins es par ambos terminan con la misma cantidad de monedas
-//si coins es impar, el que inicia termina con 1 mas
-//Iniciar no te garantiza ganar, si no el acomodo de las monedas
 
 int max_score_brute_force(std::vector<int> &coins, int l, int r) {
 
@@ -69,10 +66,39 @@ int max_score_brute_force(std::vector<int> &coins, int l, int r) {
     return std::max(sum - max_score_brute_force(coins, l+1, r), sum - max_score_brute_force(coins, l, r-1));
 }
 
+int max_score_memo(std::vector<std::vector<int>> &dp, std::vector<int> &coins, int l, int r) {
+    
+    if (dp[l][r] != 0) {
+        return dp[l][r];
+    }
+    
+    //coins are already precomputed with prefix sum
+    int sum = coins[r] - coins[l - 1];
+
+    if (l == r) {
+        dp[l][r] = sum;
+    } else {
+       dp[l][r] = std::max(sum - max_score_memo(dp, coins, l+1, r), sum - max_score_memo(dp, coins, l, r-1));
+    }
+        
+    return dp[l][r];
+}
+
 int coin_game(std::vector<int> coins) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    return max_score_brute_force(coins, 0, coins.size()-1);
+    //return max_score_brute_force(coins, 0, coins.size()-1);
+    int n = coins.size();
+    
+    //Precompute prefix sum
+    std::vector<int> prefix_sum(n + 1, 0); // precompute prefix sum
+    for (int i = 1; i <= n; i++) {
+        prefix_sum[i] = prefix_sum[i - 1] + coins[i - 1];
+    }
+    std::vector<std::vector<int>> dp(n + 1, std::vector<int>(n + 1, 0));
+    
+    //Instead of passing 0 to n-1, we pass 1 to n, since it already precomputed
+    return max_score_memo(dp, prefix_sum, 1, n);
 }
 
 template<typename T>
