@@ -41,6 +41,7 @@ There is no such common subsequence, so the result is 0.
 
 #include <iostream> // cin, cout
 #include <string> // getline, string
+#include <unordered_map>
 
 int getOccurenceIndex(std::string &s, char c) {
     
@@ -53,7 +54,7 @@ int getOccurenceIndex(std::string &s, char c) {
     return -1;
 }
 
-int longest_common_subsequence(std::string word1, std::string word2) {
+int bottom_up(std::string &word1, std::string &word2) {
     // WRITE YOUR BRILLIANT CODE HERE
     
     //first is count, second is index
@@ -83,6 +84,42 @@ int longest_common_subsequence(std::string word1, std::string word2) {
     }
     
     return globalMax;
+}
+
+int top_dow(std::string &word1, std::string &word2, int w1Index, int w2Index, std::unordered_map<std::string, int> &dic) {
+
+    std::string map_index;
+    
+    if (w1Index >= word1.size() || w2Index >= word2.size()){
+        return 0; 
+    }
+    
+    map_index.append(std::to_string(w1Index));
+    map_index.append(std::to_string(w2Index));
+    
+    if (dic.find(map_index) != dic.end()) {
+        return dic[map_index];
+    }
+    
+    //There is a match in current indexes
+    if (word1[w1Index] == word2[w2Index]) {
+        return dic[map_index] = top_dow(word1, word2, w1Index+1, w2Index+1, dic) + 1;
+    } else {
+        
+        return dic[map_index] = std::max(top_dow(word1, word2, w1Index+1, w2Index, dic), top_dow(word1, word2, w1Index, w2Index+1, dic));
+    }
+    
+}
+
+int longest_common_subsequence(std::string word1, std::string word2) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    
+    
+    //return bottom_up(word1, word2);
+    
+    std::unordered_map<std::string, int> dic;
+        
+    return top_dow(word1, word2, 0, 0, dic); 
 }
 
 int main() {
