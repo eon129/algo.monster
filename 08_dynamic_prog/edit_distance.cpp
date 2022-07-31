@@ -31,36 +31,64 @@ exection   ->  execution  (insert 'u')
 */
 #include <iostream> // cin, cout
 #include <string> // getline, string
+#include <vector>
 
-int top_down(std::string &word1, std::string &word2, int idx_w1, int idx_w2) {
+int top_down(std::string &word1, std::string &word2, int idx_w1, int idx_w2, std::vector<std::vector<int>> &memo) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    if(idx_w1 >= word1.size() && idx_w2 >= word2.size()) {
-        return 0;
+    //Return value if already calculated and saved in memo
+    if (memo[idx_w1][idx_w2] != 0) {
+        return memo[idx_w1][idx_w2];
     }
     
-    if (idx_w1 < word1.size() && idx_w2 < word2.size() && word1[idx_w1] == word2[idx_w2]) {
+    //At the end of word1, return insertion operations needed from word2
+    if(idx_w1 == word1.size()) {
+        memo[idx_w1][idx_w2] = word2.size() - idx_w2;
+        return memo[idx_w1][idx_w2];
+    }
+    //At the end of word2, return deletion operations needed to match
+    if(idx_w2 == word2.size()) {
         
-        return top_down(word1, word2, idx_w1+1, idx_w2+1);
+        memo[idx_w1][idx_w2] = word1.size() - idx_w1;
+        return memo[idx_w1][idx_w2];
+    }
+    
+    if (word1[idx_w1] == word2[idx_w2]) {
+        
+        memo[idx_w1][idx_w2] = top_down(word1, word2, idx_w1+1, idx_w2+1, memo);
+        return memo[idx_w1][idx_w2];
     } else {
     
-        return 1 + std::min(
+        memo[idx_w1][idx_w2] = 1 + std::min(
             //replace
-            top_down(word1, word2, idx_w1+1, idx_w2+1),
+            top_down(word1, word2, idx_w1+1, idx_w2+1, memo),
             std::min(
                 //insert
-                top_down(word1, word2, idx_w1, idx_w2+1),
+                top_down(word1, word2, idx_w1, idx_w2+1, memo),
                 //remove
-                top_down(word1, word2, idx_w1+1, idx_w2)
+                top_down(word1, word2, idx_w1+1, idx_w2, memo)
             )
         );
+        
+        return memo[idx_w1][idx_w2];
     }
 }
 
 int min_distance(std::string word1, std::string word2) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    return top_down(word1, word2, 0, 0);
+    int max = std::max(word1.size(), word2.size()) + 1;
+    std::vector<std::vector<int>> memo(max, std::vector<int>(max));
+    
+    for (int i=0; i<max; i++) {
+        for (int j=0; j<max; j++) {
+        
+            memo[i][j] = 0;
+        }
+    }
+    
+    
+    return top_down(word1, word2, 0, 0, memo);
 }
 
 int main() {
