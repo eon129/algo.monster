@@ -32,7 +32,7 @@ The other possibilities would all be only 1 object in our knapsack, which would 
 #include <string> // getline, string
 #include <vector> // vector
 
-int knapsack(std::vector<int> weights, std::vector<int> values, int max_weight) {
+int recursive_1(std::vector<int> weights, std::vector<int> values, int max_weight) {
     // WRITE YOUR BRILLIANT CODE HERE
     
     int max = 0;
@@ -46,7 +46,7 @@ int knapsack(std::vector<int> weights, std::vector<int> values, int max_weight) 
             w_temp.erase(w_temp.begin()+i);
             v_temp.erase(v_temp.begin()+i);
             //Iterate over all posibilities
-            int temp = knapsack(
+            int temp = recursive_1(
                 w_temp,
                 v_temp,
                 max_weight - weights[i]) + values[i];
@@ -64,6 +64,38 @@ int knapsack(std::vector<int> weights, std::vector<int> values, int max_weight) 
     return max;
 }
 
+int recursive_2(std::vector<int> &weights, std::vector<int> &values, int max_weight, int curr_idx, std::vector<std::vector<int>> &memo) {
+    
+    if (memo[curr_idx][max_weight] != -1) {
+        return memo[curr_idx][max_weight];
+    }
+    
+    if (curr_idx == weights.size() || max_weight == 0) {
+        memo[curr_idx][max_weight] = 0;
+        return memo[curr_idx][max_weight];
+    }
+     
+    if ( max_weight - weights[curr_idx] < 0) {
+        
+        memo[curr_idx][max_weight] = recursive_2(weights, values, max_weight, curr_idx+1, memo);
+        
+        return memo[curr_idx][max_weight];
+    }
+    
+    memo[curr_idx][max_weight] = std::max(recursive_2(weights, values, max_weight-weights[curr_idx], curr_idx+1, memo) + values[curr_idx],
+                              recursive_2(weights, values, max_weight, curr_idx+1, memo));
+    
+    return memo[curr_idx][max_weight];
+}
+
+int knapsack(std::vector<int> weights, std::vector<int> values, int max_weight) {
+    // WRITE YOUR BRILLIANT CODE HERE
+
+    //return recursive_1(weights, values, max_weight);
+    
+    std::vector<std::vector<int>> memo(weights.size() + 1, std::vector<int>(max_weight + 1, -1));
+    return recursive_2(weights, values, max_weight, 0, memo);
+}
 template<typename T>
 std::vector<T> get_words() {
     std::string line;
