@@ -79,38 +79,23 @@ std::vector<std::string> _permutations(std::string letters, std::string currPath
     return {currPath + letters[0]};
 }
 
-//This solution avoids creating copies of the letters array
-std::vector<std::string> _permutations_2(std::string letters, std::string currPath, std::vector<bool> visited) {
+void _permutations_with_masking(std::string &letters, std::string currPath, int mask, std::vector<std::string> &res) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    if (currPath.size() == letters.size()) {
-        
-        return {currPath};
+    //All characters has been used
+    if ((1 << letters.size()) == mask + 1) {
+        //Concatenate result
+        res.emplace_back(currPath);
+        return;
     }
     
-    std::vector<std::string> result, temp;
-    
-      
-    for (int i=0; i < letters.length(); i++) {
-            
-        //Skip char if already visited
-        if (visited[i] == true) {
-            continue;
+    for (int i=0; i < letters.length(); i++) {      
+        //Character is not used yet
+        if (!((1<<i) & mask)) {           
+            //Concatenation of string might be optimized
+            _permutations_with_masking(letters, currPath + letters[i], ((1<<i) | mask), res);
         }
-            
-        //Set current position to already visited so in next fuction call
-        // it will be omited
-        visited[i] = true;
-            
-        temp = _permutations_2(letters, currPath + letters[i], visited);
-        result.insert(std::end(result), std::begin(temp), std::end(temp));
-            
-        //Set it to not visited again so we can have all te combinations
-        visited[i] = false;
     }
-     
-    
-    return result;
 }
 
 std::vector<std::string> permutations(std::string letters) {
@@ -118,8 +103,11 @@ std::vector<std::string> permutations(std::string letters) {
     
     //return _permutations_it(letters);
     //return _permutations(letters, "");
-    std::vector<bool> visited(letters.size(), false);
-    return _permutations_2(letters, "", visited);
+    
+    std::vector<std::string> res;
+    _permutations_with_masking(letters, "", 0, res);
+    return res;
+    
 }
 
 int main() {
