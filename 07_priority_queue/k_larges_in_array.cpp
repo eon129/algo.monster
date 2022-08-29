@@ -11,6 +11,7 @@ Note:
 You may assume k is always valid, 1 ≤ k ≤ array's length.
 */
 
+
 #include <algorithm> // copy
 #include <iostream> // cin, cout, streamsize
 #include <iterator> // back_inserter, istream_iterator
@@ -20,11 +21,12 @@ You may assume k is always valid, 1 ≤ k ≤ array's length.
 #include <vector> // vector
 #include <queue>
 
-int find_kth_largest(std::vector<int> nums, int k) {
+int find_kth_largest_old(std::vector<int> nums, int k) {
     // WRITE YOUR BRILLIANT CODE HERE
     std::priority_queue<int> pq;
     
-    //Order numbers using priority queue
+    //Put the numbers in a heap
+    //It would be better if we can "make a heap" from the array since complexity is O(n)
     for(int i=0; i<nums.size(); i++) {
     
         pq.push(nums[i]);
@@ -36,6 +38,22 @@ int find_kth_largest(std::vector<int> nums, int k) {
     }
     
     return pq.top();
+}
+
+
+int find_kth_largest(std::vector<int> nums, int k) {
+    // WRITE YOUR BRILLIANT CODE HERE
+    
+    //make a heap from vector
+    std::make_heap(nums.begin(), nums.end());
+    
+    //pop k-1 numbers from heapifyed vector
+    for(int i=1; i<k; i++) {
+        pop_heap(nums.begin(), nums.end());
+        nums.pop_back();
+    }
+    
+    return nums.front();
 }
 
 template<typename T>

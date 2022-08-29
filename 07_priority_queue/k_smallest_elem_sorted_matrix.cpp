@@ -25,39 +25,71 @@ You may assume k is always valid, 1 ≤ k ≤ n^2. You may also assume that 1 <=
 #include <vector> // vector
 #include <queue>
 
-int find_kth_largest_old(std::vector<int> nums, int k) {
+//This solution walks the matrix in diagonals so pushing the values to the heap
+//takes fewer time
+int kth_smallest_old(std::vector<std::vector<int>> matrix, int k) {
     // WRITE YOUR BRILLIANT CODE HERE
     std::priority_queue<int> pq;
+    int n, pyramid, side, offset;
     
-    //Put the numbers in a heap
-    //It would be better if we can "make a heap" from the array since complexity is O(n)
-    for(int i=0; i<nums.size(); i++) {
+    n = matrix.size();
     
-        pq.push(nums[i]);
+    for(int c=0, side = 1, pyramid=1, offset = 0; c < ((n*2) - 1); c++) {
+    
+        int i, j;
+        for (i=0, j=pyramid-1; i < pyramid; i++, j--) {
+            
+            //Push elements with opposite sign to create a min heap
+            pq.push(matrix[offset+(i*side)][offset+(j*side)] * -1);
+        }
+        
+        if (c+1 >= n) {
+            side = -1;
+            offset = n-1;
+        }
+        pyramid += side; 
     }
     
-    //pop k-1 numbers from pq
-    for(int i=1; i<k; i++) {
+    //Remove elements from the queue until k
+    for(int i=1; i<k; i++) {    
         pq.pop();
     }
     
-    return pq.top();
+    return (pq.top() * -1);
 }
 
+int kth_smallest(std::vector<std::vector<int>> matrix, int k) {
 
-int find_kth_largest(std::vector<int> nums, int k) {
-    // WRITE YOUR BRILLIANT CODE HERE
+    int n = matrix.size();
+    int pointer[n];
+    std::priority_queue<std::pair<int, std::pair<int, int>>> pq;
     
-    //make a heap from vector
-    std::make_heap(nums.begin(), nums.end());
-    
-    //pop k-1 numbers from heapifyed vector
-    for(int i=1; i<k; i++) {
-        pop_heap(nums.begin(), nums.end());
-        nums.pop_back();
+    //initialize pointers with 1 and push the first element of each row
+    //to the p_queue
+    for (int i=0; i<n; i++) {
+        pq.push(std::make_pair(-matrix[i][0], std::make_pair(i, 0)));
+        pointer[i] = 1;
     }
     
-    return nums.front();
+    //Iterate untill k = 1
+    while ( k > 1) {
+    
+        auto curr = pq.top();
+        pq.pop();
+        
+        //If we still have elements in row to check
+        if (curr.second.second + 1 < n) {
+            
+            int i = curr.second.first;
+            int j = curr.second.second + 1;
+        
+            pq.push(std::make_pair(-matrix[i][j], std::make_pair(i, j)));
+        }
+        
+        k--;
+    }
+   
+    return -pq.top().first;
 }
 
 template<typename T>
@@ -75,10 +107,16 @@ void ignore_line() {
 }
 
 int main() {
-    std::vector<int> nums = get_words<int>();
+    int matrix_length;
+    std::cin >> matrix_length;
+    ignore_line();
+    std::vector<std::vector<int>> matrix;
+    for (int i = 0; i < matrix_length; i++) {
+        matrix.emplace_back(get_words<int>());
+    }
     int k;
     std::cin >> k;
     ignore_line();
-    int res = find_kth_largest(nums, k);
+    int res = kth_smallest(matrix, k);
     std::cout << res << '\n';
 }
