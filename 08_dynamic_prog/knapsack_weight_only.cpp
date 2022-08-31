@@ -61,31 +61,39 @@ std::vector<int> brute_force(std::vector<int> &weights) {
   return ans;
 }
 
-void generate_sums_2(std::vector<int> &weights, std::set<int> &sums, int sum, int n, int level, std::vector<std::set<int>> &memo) {
+void generate_sums_2(std::vector<int> &weights, std::set<int> &sums, int sum, int n, std::vector<std::vector<bool>> &memo) {
   
+    //if branch already visited, avoid going there again
+    if (memo[n][sum]) {
+        return;
+    }
+    
     if (n == 0) {
         sums.insert(sum);
         return;
     }
-    
-    //if branch already visited, avoid going there again
-    if (memo[level].find(weights[n-1]) != memo[level].end()) {
-        return;
-    }
  
-    generate_sums_2(weights, sums, sum, n - 1, level+1, memo);
-    generate_sums_2(weights, sums, sum + weights[n - 1], n - 1, level+1, memo);
+    generate_sums_2(weights, sums, sum, n - 1, memo);
+    generate_sums_2(weights, sums, sum + weights[n - 1], n - 1, memo);
     
     //Store already visited branch in memo
-    memo[level].insert(weights[n-1]); 
+    memo[n][sum] = true; 
 }
 
 std::vector<int> top_down_memo(std::vector<int> &weights) {
     std::set<int> sums;
     int n = weights.size();
-    std::vector<std::set<int>> memo(n, std::set<int>());
+    int sum = 0;
+ 
+    //Sum all elements
+    for ( auto element : weights ) {      
+        sum+= element;
+    }
+    
+    //Create memo
+    std::vector<std::vector<bool>> memo(n + 1, std::vector<bool>(sum + 1, false));
   
-    generate_sums_2(weights, sums, 0, n, 0, memo);
+    generate_sums_2(weights, sums, 0, n, memo);
     
     std::vector<int> ans(sums.begin(), sums.end());
     
@@ -95,19 +103,10 @@ std::vector<int> top_down_memo(std::vector<int> &weights) {
 std::vector<int> knapsack_weight_only(std::vector<int> weights) {
     // WRITE YOUR BRILLIANT CODE HERE
     
-    //return brute_force(weights);  
+    //return brute_force(weights);
+    
     return top_down_memo(weights);
     
-    /*std::vector<std::set<int>> memo(4, std::set<int>()); 
-    memo[3].insert(3);
-    memo[3].insert(5);
-    if (memo[3].find(5) == memo[3].end()) {
-    
-        std::cout << "not"; 
-    } else {
-        std::cout << "yes";
-    }
-    return {};*/
 }
 
 template<typename T>
