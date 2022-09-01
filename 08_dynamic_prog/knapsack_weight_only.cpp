@@ -100,13 +100,62 @@ std::vector<int> top_down_memo(std::vector<int> &weights) {
     return ans;
 }
 
+std::vector<int> bottom_up(std::vector<int> &weights) {
+    std::set<int> sums;
+    int n = weights.size();
+    int sum = 0;
+ 
+    //Sum all weights
+    for ( auto element : weights ) {      
+        sum+= element;
+    }
+    
+    //Create dp matrix and fill it with false, with exception of column 0
+    bool dp[n+1][sum+1];
+    for (int i=0; i<=n; i++) {
+        for (int j=0; j<=sum; j++) {         
+            if (j==0) {
+                dp[i][j] = true;
+            } else {
+                dp[i][j] = false;
+            }
+        }   
+    } 
+    
+    //Insert 0 which is allways a valid element in the result
+    sums.insert(0);
+
+    
+    for (int i=1; i<=n; i++) {
+        for (int j=1; j<=sum; j++) { 
+            
+            //If result was already found, just update value in this row
+            if (dp[i-1][j] == true) {              
+                dp[i][j] = true;
+                sums.insert(j);
+                continue;
+            }
+            
+            //Check if current sum - weight has already a correct result in the past
+            if ((j - weights[i-1]) >=0 && dp[i-1][j-weights[i-1]] == true) {
+                dp[i][j] = true;
+                sums.insert(j);
+            }
+        }
+    }
+  
+    //Convert set to vector
+    std::vector<int> ans(sums.begin(), sums.end());
+    
+    return ans;
+}
+
 std::vector<int> knapsack_weight_only(std::vector<int> weights) {
     // WRITE YOUR BRILLIANT CODE HERE
     
     //return brute_force(weights);
-    
-    return top_down_memo(weights);
-    
+    //return top_down_memo(weights);
+    return bottom_up(weights);
 }
 
 template<typename T>
