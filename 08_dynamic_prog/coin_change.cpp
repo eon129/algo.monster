@@ -57,13 +57,78 @@ int _coin_change(std::vector<int> &coins, int amount, int coin_num, int &global_
     return global_min;
 }
 
+int top_down_memo(std::vector<int> &coins, int amount, std::vector<int> &memo) {
+
+    int result = INT_MAX;
+    
+    //If result found in memo, return right away
+    if (memo[amount] != -1) {
+        return memo[amount];
+    }
+    
+    //Solution found
+    if (amount == 0) {
+        return 0;
+    }
+    
+    //Invalid step
+    if (amount < 0) {
+        return INT_MAX;
+    }
+    
+    for (auto coin : coins) {
+        
+        int result_local = top_down_memo(coins, amount - coin, memo);  
+            
+        //if branch doesn't have any awnser skip to evaluate it
+        if (result_local == INT_MAX) {
+            continue;
+        }
+            
+        result = (result_local+1 < result) ? result_local+1 : result;
+
+    }
+    
+    memo[amount] = result;
+    
+    return result;
+}
+
+int bottom_up(std::vector<int> &coins, int amount) {
+
+    std::vector<int> dp(amount+1, INT_MAX);
+    
+    dp[0] = 0;
+    
+    for (int i=1; i <= amount; i++) {
+        
+        dp[i] = INT_MAX;
+        
+        for (auto coin : coins) {
+            
+            dp[i] = std::min(dp[i], (i-coin >= 0) ? dp[i - coin] : INT_MAX);
+        }
+        
+        if (dp[i] != INT_MAX) {
+            dp[i] = dp[i] + 1;
+        }
+    }
+    
+    return (dp[amount] == INT_MAX) ? -1 : dp[amount];
+}
+
 int coin_change(std::vector<int> coins, int amount) {
     // WRITE YOUR BRILLIANT CODE HERE
-    int global_min = INT_MAX;
     
-    int result = _coin_change(coins, amount, 0, global_min);
+    /*int global_min = INT_MAX;
+    int result = _coin_change(coins, amount, 0, global_min); 
+    return (result == INT_MAX) ? -1 : result;*/
     
-    return (result == INT_MAX) ? -1 : result;
+    /*std::vector<int> memo(amount+1, -1);
+    int res = top_down_memo(coins, amount, memo);
+    return (res == INT_MAX) ? -1 : res;*/
+    
+    return bottom_up(coins, amount);
 }
 
 template<typename T>
